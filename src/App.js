@@ -12,6 +12,7 @@ const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
 const App = ({ contract, currentUser, nearConfig, wallet }) => {
   const [messages, setMessages] = useState([]);
 
+  const [isWriteMessage, setIsWriteMessage] = useState(false)
   useEffect(() => {
     // TODO: don't just fetch once; subscribe!
     contract.getMessages().then(setMessages);
@@ -28,7 +29,9 @@ const App = ({ contract, currentUser, nearConfig, wallet }) => {
     // update blockchain data in background
     // add uuid to each message, so we know which one is already known
     contract.addMessage(
-      { text: message.value },
+      { text: message.value,
+        timestamp: new Date(),
+       },
       BOATLOAD_OF_GAS,
       Big(donation.value || '0').times(10 ** 24).toFixed()
     ).then(() => {
@@ -39,6 +42,7 @@ const App = ({ contract, currentUser, nearConfig, wallet }) => {
         fieldset.disabled = false;
         message.focus();
       });
+      setIsWriteMessage(true);
     });
   };
 
@@ -64,7 +68,7 @@ const App = ({ contract, currentUser, nearConfig, wallet }) => {
         }
       </header>
       { currentUser
-        ? <Form onSubmit={onSubmit} currentUser={currentUser} />
+        ? <Form onSubmit={onSubmit} currentUser={currentUser} isWriteMessage={isWriteMessage}  />
         : <SignIn/>
       }
       { !!currentUser && !!messages.length && <Messages messages={messages}/> }
